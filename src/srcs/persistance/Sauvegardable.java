@@ -1,4 +1,4 @@
-package srcs.banque;
+package srcs.persistance;
 
 import java.io.IOException;
 import java.io.OutputStream;

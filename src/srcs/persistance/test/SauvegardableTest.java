@@ -6,7 +6,7 @@ import static srcs.persistance.PersistanceTools.*;
 import org.junit.Test;
 
 import srcs.banque.Compte;
-import srcs.banque.Sauvegardable;
+import srcs.persistance.Sauvegardable;
 
 import java.io.IOException;
 public class SauvegardableTest {

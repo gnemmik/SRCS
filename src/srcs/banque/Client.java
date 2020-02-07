@@ -1,7 +1,8 @@
 package srcs.banque;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+
+import srcs.persistance.Sauvegardable;
 
 public class Client implements Sauvegardable{
 
@@ -15,7 +16,14 @@ public class Client implements Sauvegardable{
 		this.compte=compte;
 
 	}
+	
+	public Client(InputStream in) throws IOException {
 		
+		compte=new Compte(in);
+		DataInputStream dis=new DataInputStream(in);
+		nom=dis.readUTF();
+		
+	}
 	public String getNom() {
 		return nom;
 	}
@@ -37,6 +45,9 @@ public class Client implements Sauvegardable{
 	@Override
 	public void save(OutputStream out) throws IOException {
 		// TODO Auto-generated method stub
+		compte.save(out);
+		DataOutputStream dos=new DataOutputStream(out);
+		dos.writeUTF(nom);
 		
 	}
 	

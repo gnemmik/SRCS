@@ -2,6 +2,8 @@ package srcs.banque;
 
 import java.io.*;
 
+import srcs.persistance.Sauvegardable;
+
 public class Compte implements Sauvegardable {
 
 	

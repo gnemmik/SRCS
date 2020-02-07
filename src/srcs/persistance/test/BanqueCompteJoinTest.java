@@ -42,6 +42,7 @@ public class BanqueCompteJoinTest {
 			banque.getClient("client1").getCompte().crediter(10);
 			assertEquals(18,banque.getClient("client1").getCompte().getSolde(),0);
 			assertTrue(banque.getClient("client2").getCompte().getSolde() == banque.getClient("client1").getCompte().getSolde());
+			// Les deux clients partageant un compte ne partagent plus le même compte après serialization & deserialization
 			
 		} catch (IOException | ReflectiveOperationException e) {
 			assertTrue(false);
