@@ -1,5 +1,9 @@
-# TD SAS : Rapport final
+# Rapport : Sécurité et Administration des Systèmes   
+  
+## 1. Contruction d'un système d'exploitation Debian Buster minimal  
 
+###  1.1 Installation du système de base
+ 
 Tout d'abord, pour pouvoir faire les travaux pratiques demandés, nous avons besoin d'un environnement de travail sous linux.  
 Nous avons donc crée une machine virtuelle à partir de VirtualBox.  
 
@@ -7,7 +11,9 @@ Ensuite, nous avons installé une Debian Minimal à partir du mini.iso fourni pa
 
 Pendant l'installation, nous avons choisi un mot de passe administrateur **root** (ce mot de passe peut être changé à tout moment avec la commande **passwd**) et crée un utilisateur *lambda* (sans droits administrateur) avec son mot de passe.  
 
-Une fois l'installation faite, le terminal de base du système récemment installé étant pas très pratique, il est préférable de se connecter à la nouvelle machine depuis notre propre terminal via **ssh**.  
+### 1.2 Secure Shell
+
+Une fois l'installation faite, le terminal de base du système récemment installé étant pas très pratique, il est préférable de nous connecter à la nouvelle machine depuis notre propre terminal via **ssh**.  
 Sans toucher au fichier de configuation de ssh de base, nous pouvons seulement nous connecter en tant que utilisateur *lambda*.
 
     kimmeng@shelby:~$ ssh root@192.168.0.30  
@@ -31,14 +37,18 @@ Une fois que le service **ssh** redémarré, nous pouvons enfin nous connecter e
 
 
 **TP2** Partitions ?  
-**TP3** SSH génération de clés
+**TP3** SSH génération de clés?
 
 
-Nous allons maintenant procéder à la mise en place des conteneurs **lxc**. Tout d'abord, nous devons installer les paquets de **lxc** avec la commande (en tant que *root*) :  
+## 2. Mise en place des containers LXC
+### 2.1 Installation des paquets nécessaires 
+Nous allons maintenant procéder à la mise en place des containers **lxc**. Tout d'abord, nous devons installer les paquets de **lxc** avec la commande (en tant que *root*) :  
 
     root@debian:~# apt-get install lxc lxctl lxc-tests lxc-templates  
 
-Par défaut sur Debian la configuration réseau pour les conteneurs est désactivée, alors pour avoir du réseau dans nos conteneurs, nous devons mettre à jour le fichier de configuration de **lxc** comme ci-dessous:  
+### 2.2 Configuration réseau des containers
+
+Par défaut sur Debian la configuration réseau pour les containers est désactivée, alors pour avoir du réseau dans nos containers, nous devons mettre à jour le fichier de configuration de **lxc** comme ci-dessous:  
 
 D'abord le fichier **/etc/lxc/default.conf** : 
 
@@ -53,11 +63,13 @@ Et mettre à **true** l'option **USE_LXC_BRIDGE** dans le fichier **/etc/default
     
     USE_LXC_BRIDGE="true"  # overridden in lxc-net
 
-Ensuite, nous pouvons créer notre premier conteneur **c1** avec la commande :  
+### 2.3 Création d'un premier container
+
+Ensuite, nous pouvons créer notre premier container **c1** avec la commande :  
 
     root@debian:~# lxc-create -n c1 -t download  
 
-**-n** : pour spécifier le nom du conteneur  
+**-n** : pour spécifier le nom du container  
 **-t** : pour spécifier le template  
 
 Nous précisons ensuite quel type de distribution nous voulons installer :
@@ -66,16 +78,16 @@ Nous précisons ensuite quel type de distribution nous voulons installer :
     Release: buster
     Architecture: amd64  
 
-Une fois que notre conteneur est installé, nous pouvons le voir avec **lxc-ls** qui permet de lister les conteneurs installés : 
+Une fois que notre container est installé, nous pouvons le voir avec **lxc-ls** qui permet de lister les containers installés : 
 
     root@debian:~# lxc-ls
     c1  
 
-Nous pouvons ensuite démarrer notre conteneur avec la commande :  
+Nous pouvons ensuite démarrer notre container avec la commande :  
     
     root@debian:~# lxc-start -n c1 -d
 
-Pour vérifier que le conteneur est bien démarré : 
+Pour vérifier que le container est bien démarré : 
 
     root@debian:~# lxc-info c1
     Name:           c1
@@ -91,7 +103,7 @@ Pour vérifier que le conteneur est bien démarré :
      RX bytes:      1.87 KiB
     Total bytes:   3.50 KiB  
 
-Le conteneur **c1** est configuré comme suit : 
+Le container **c1** est configuré comme suit : 
 
     root@debian:~# cat /var/lib/lxc/c1/config 
     ...
@@ -111,9 +123,11 @@ Le conteneur **c1** est configuré comme suit :
     lxc.net.0.flags = up
     lxc.net.0.hwaddr = 00:16:3e:47:bc:6d  
 
-Pour arrêter **c1** :
+Pour arrêter le container **c1** :
 
     root@debian:~# lxc-stop c1
+
+### 2.4 Clonage des containers
 
 Nous allons maintenant cloner **c1** en **c2** puis en **c3** :
 
@@ -122,10 +136,28 @@ Nous allons maintenant cloner **c1** en **c2** puis en **c3** :
     root@debian:~# lxc-ls
     c1   c2   c3
 
-Nous pouvons remarquer que le fichier de configuration de **c2** est similaire à celui de **c1**, seul l'adresse MAC a changé mais aussi l'ajout de deux lignes supplémentaires à la fin du fichier : 
+Nous pouvons remarquer que le fichier de configuration de **c2** est similaire à celui de **c1**, les seuls changements notables sont l'adresse MAC et l'ajout de deux lignes supplémentaires à la fin du fichier : 
 
     root@debian:~# cat /var/lib/lxc/c2/config 
     ...
     lxc.net.0.hwaddr = 00:16:3e:68:82:84
     lxc.rootfs.path = dir:/var/lib/lxc/c2/rootfs
     lxc.uts.name = c2
+
+**lxc-attach**?  
+**TP5 NetFilter / Iptables?**  
+
+## 3. Configuration réseau des containers et de la machine hôte  
+
+### 3.1 Configuration de la machine hôte  
+
+Les containers sont connectés les uns aux autres à l'aide d'un switch virtuel qui est en fait un bridge. Ce bridge est nommé *lxcbr0* (lxc bridge 0).  
+
+>Un **bridge** (pont) est un équipement au niveau 2 (liaison) pour interconnecter deux segments Ethernet.
+>* Interconnexion par pont :  
+    * Un pont divise le réseau en plusieurs domaines de collision distincts  
+    * Chaque domaine de collision correspond à un segment connecté à un port du pont  
+    * Le pont filtre le trafic par l’adresse MAC : ne pas forwarderles (transférer) trames destinées au même segment  
+
+Nous allons activer la connexion entre la carte *physique* eth0 de notre machine et le bridge des containers.  
+
