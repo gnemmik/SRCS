@@ -154,10 +154,11 @@ Nous pouvons remarquer que le fichier de configuration de **c2** est similaire �
 Les containers sont connectés les uns aux autres à l'aide d'un switch virtuel qui est en fait un bridge. Ce bridge est nommé *lxcbr0* (lxc bridge 0).  
 
 >Un **bridge** (pont) est un équipement au niveau 2 (liaison) pour interconnecter deux segments Ethernet.
+
 >* Interconnexion par pont :  
-    * Un pont divise le réseau en plusieurs domaines de collision distincts  
-    * Chaque domaine de collision correspond à un segment connecté à un port du pont  
-    * Le pont filtre le trafic par l’adresse MAC : ne pas forwarderles (transférer) trames destinées au même segment  
+    >   * Un pont divise le réseau en plusieurs domaines de collision distincts  
+    >   * Chaque domaine de collision correspond à un segment connecté à un port du pont  
+    >   * Le pont filtre le trafic par l’adresse MAC : ne pas forwarderles (transférer) trames destinées au même segment  
 
 Nous allons activer la connexion entre la carte *physique* eth0 de notre machine et le bridge des containers.  
 
