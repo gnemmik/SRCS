@@ -53,7 +53,7 @@ Par défaut sur Debian la configuration réseau pour les containers est désacti
 D'abord le fichier **/etc/lxc/default.conf** : 
 
     lxc.net.0.type = veth
-    lxc.net.0.link = virbr0
+    lxc.net.0.link = lxcbr0
     lxc.net.0.flags = up
     lxc.net.0.hwaddr = 00:16:3e:xx:xx:xx
     lxc.apparmor.profile = generated
