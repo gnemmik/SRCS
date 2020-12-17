@@ -1,1 +1,1 @@
-# SRCS
+# Systèmes répartis et clients-serveurs
